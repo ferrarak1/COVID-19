@@ -1,0 +1,42 @@
+---
+title: "Untitled"
+author: "Katherine Ferrara"
+date: "March 24, 2020"
+output: html_document
+---
+```{r}
+library(lubridate)
+library(tidyverse)
+corona<-read.csv("time_series_19-covid-Confirmed.csv", header =TRUE)
+head(corona)
+
+corona$Date<-ymd(corona$Date)
+colnames(corona)[2]<-"Country"
+corona$Country<-as.character(corona$Country)
+colnames(corona)[1]<-"State"
+corona$State<-as.character(corona$State)
+
+head(corona)
+```
+```{r}
+corona%>%filter(Country == "US")%>%group_by(State)%>%summarize(totconfirmed = sum(Confirmed))
+
+corona_china<-corona%>%filter(Country == "China")%>%group_by(Date)%>%summarize(total = sum(Confirmed))
+
+ggplot(corona_china, aes(x=Date, y= total))+geom_point()
+```
+
+```{r}
+corona_us<-corona%>%filter(Country == "US")%>%group_by(Date)%>%summarize(total = sum(Confirmed))
+
+ggplot(corona_us, aes(x=Date, y= total))+geom_point()
+```
+```{r}
+model<-glm(total~total, data= corona_us, family = "binomial")
+
+corona_ma<-corona%>%filter(State == "Massachusetts")
+
+ggplot(corona_ma, aes( x = Date, y = Confirmed )) + geom_point()
+
+```
+
